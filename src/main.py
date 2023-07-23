@@ -2,22 +2,23 @@ from whisper import Whisper
 import json
 import os
 
-from flask import Flask
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
 
-@app.route('/')
-def status():
-    whisper = Whisper()
-    transcript = whisper.transcribe("https://dl.sndup.net/fq8z/audio.mp3")
-    return json.dumps(transcript)
-
-
 @app.route('/', methods=['POST'])
-def do_transcribe():
+def transcribe():
+    data = request.get_json()
+
+    if 'url' not in data:
+        return jsonify({'error': 'URL not found in the request body'}), 400
+
+    url = data['url']
+
     whisper = Whisper()
-    transcript = whisper.transcribe("https://dl.sndup.net/fq8z/audio.mp3")
+    transcript = whisper.transcribe(url)
+
     return json.dumps(transcript)
 
 
